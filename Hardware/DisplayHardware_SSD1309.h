@@ -13,7 +13,12 @@
 
 #include <stdint.h>
 
-#include "out"
+#include "../DotMatrixElement.h"
+
+/**
+ * minimum size of the command buffer
+ */
+#define DOTMATRIX_COMMANDBUFFER_SIZE 13
 
 /**
  * I2C Slave Address
@@ -328,10 +333,9 @@ static inline uint8_t initializeDisplayHardware(uint8_t * buffer, uint8_t buffer
 }
 
 /**
- * Function uint8_t setCommandPosition(uint8_t line, uint8_t xpos, uint8_t * buffer, uint8_t bufferlength)
+ * Function uint8_t setCommandPosition(DisplayElement* element, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength)
  * fills the buffer with display specific information to set the cursor to the position (line, column)
- * @param line: the line to set the cursor to
- * @param xpos: the column to set the cursor to
+ * @param element: the DisplayElement to be transferred (used for obtaining position and size)
  * @param buffer: the buffer to be filled with the information
  * @param bufferoffset: the offset of the buffer, bytes are written to the index bufferoffset + n
  * @param bufferlength: the maximum length of the buffer; this function won't write to the buffer if length isn't sufficient
@@ -358,7 +362,7 @@ static inline uint8_t setCommandPosition(DisplayElement* element, uint8_t * buff
 }
 
 /**
- * Function uint8_t setCommandData(uint8_t nOfBytes, uint8_t offset, uint8_t xpos, uint8_t * buffer, uint8_t bufferlength)
+ * Function uint8_t setCommandData(DisplayElement* element, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength)
  * fills the buffer with display specific information to transfer data
  * @param nOfBytes: the number of bytes to transfer
  * @param xpos: the first column to write to, needed for display side selection

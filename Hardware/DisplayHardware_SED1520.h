@@ -8,12 +8,19 @@
 #ifndef DISPLAYHARDWARE_SED1520_H_
 #define DISPLAYHARDWARE_SED1520_H_
 
+#include <stdint.h>
+
+#include "../DotMatrixElement.h"
+
 /**
  * Definition to force a repositioning on each new line
  */
 #define DISPLAY_PositioningOnEachNewLine
 
-#include <stdint.h>
+/**
+ * minimum size of the command buffer
+ */
+#define DOTMATRIX_COMMANDBUFFER_SIZE 13
 
 /**
  * Command Bytes for DotMatrix Display Interface hardware
@@ -73,7 +80,7 @@ static inline uint8_t initializeDisplayHardware(uint8_t * buffer, uint8_t buffer
 }
 
 /**
- * Function uint8_t setCommandPosition(uint8_t line, uint8_t xpos, uint8_t * buffer, uint8_t bufferlength)
+ * Function uint8_t setCommandPosition(DisplayElement* element, uint8_t * buffer, uint8_t bufferlength)
  * fills the buffer with display specific information to set the cursor to the position (line, column)
  * @param line: the line to set the cursor to
  * @param xpos: the column to set the cursor to
@@ -82,9 +89,12 @@ static inline uint8_t initializeDisplayHardware(uint8_t * buffer, uint8_t buffer
  * @param bufferlength: the maximum length of the buffer; this function won't write to the buffer if length isn't sufficient
  * @return the number of bytes written to the buffer
  */
-inline uint8_t setCommandPosition(uint8_t line, uint8_t xpos, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength);
-uint8_t setCommandPosition(uint8_t line, uint8_t xpos, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength) {
+static inline uint8_t setCommandPosition(DisplayElement* element, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength) __attribute__((always_inline));
+static inline uint8_t setCommandPosition(DisplayElement* element, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength)
+{
     if (bufferlength-bufferoffset >= 4) {
+        uint8_t xpos = element->pos_x;
+        uint8_t line = (element->status & dotMatrix_lineMask) >> 4;
         buffer[bufferoffset+0] = COMMAND_START | COMMAND_START_A0;
         if (xpos < 62) {
             buffer[bufferoffset+0] |= COMMAND_START_CS1;
@@ -103,7 +113,7 @@ uint8_t setCommandPosition(uint8_t line, uint8_t xpos, uint8_t * buffer, uint8_t
 }
 
 /**
- * Function uint8_t setCommandData(uint8_t nOfBytes, uint8_t offset, uint8_t xpos, uint8_t * buffer, uint8_t bufferlength)
+ * Function uint8_t setCommandData(DisplayElement* element, uint8_t * buffer, uint8_t bufferlength)
  * fills the buffer with display specific information to transfer data
  * @param nOfBytes: the number of bytes to transfer
  * @param xpos: the first column to write to, needed for display side selection
@@ -112,17 +122,18 @@ uint8_t setCommandPosition(uint8_t line, uint8_t xpos, uint8_t * buffer, uint8_t
  * @param bufferlength: the maximum length of the buffer; this function won't write to the buffer if length isn't sufficient
  * @return the number of bytes written to the buffer
  */
-inline uint8_t setCommandData(uint8_t nOfBytes, uint8_t xpos, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength);
-uint8_t setCommandData(uint8_t nOfBytes, uint8_t xpos, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength) {
+static inline uint8_t setCommandData(DisplayElement* element, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength) __attribute__((always_inline));
+static inline uint8_t setCommandData(DisplayElement* element, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength)
+{
     if (bufferlength-bufferoffset >= 2) {
         buffer[bufferoffset+0] = COMMAND_START;
-        if (xpos < 62) {
+        if (element->pos_x < 62) {
             buffer[bufferoffset+0] |= COMMAND_START_CS1;
         }
         else {
             buffer[bufferoffset+0] |= COMMAND_START_CS2;
         }
-        buffer[bufferoffset+1] = nOfBytes;
+        buffer[bufferoffset+1] = element->len_x;
         return 2;
     }
     return 0;

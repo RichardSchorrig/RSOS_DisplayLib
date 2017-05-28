@@ -33,5 +33,30 @@ typedef struct DisplayElement_t {
     uint16_t status;
 } DisplayElement;
 
+/**
+ * sizes
+ */
+#define DOTMATRIX_DISPLAY_LINES (DOTMATRIX_DISPLAY_YRES / 8)
+
+/**
+ * bit identifier: is active
+ */
+#define dotMatrix_activeBit 0x8000
+
+/**
+ * bit identifier: is inverted
+ */
+#define dotMatrix_isInverted 0x4000
+
+/**
+ * mask: base line
+ */
+#define dotMatrix_lineMask 0x00F0
+
+/**
+ * mask: total lines
+ */
+#define dotMatrix_additionalLineMask 0x000F
+
 
 #endif /* OUTPUT_DOTMATRIXELEMENT_H_ */
