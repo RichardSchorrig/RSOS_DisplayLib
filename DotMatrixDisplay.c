@@ -10,13 +10,13 @@
 /* exclude everything if not used */
 #ifdef DOTMATRIX_MEMSIZE
 
-#include <DisplayHardware.h>
+#include "Hardware/DisplayHardware.h"
 
 #ifdef DOTMATRIX_SPI
-#include "../SerialInterface/SPIOperation.h"
+#include <SerialInterface/SPIOperation.h>
 SPIOperation* dotMatrixSR;
 #elif defined DOTMATRIX_I2C
-#include "../SerialInterface/I2C_Operation.h"
+#include <SerialInterface/I2C_Operation.h>
 I2C_Data* dotMatrixSR;
 #endif /* SPI / I2C */
 
@@ -119,7 +119,7 @@ void DotMatrix_transferElement()
                     currentLine = ((currentDisplayElement->status & dotMatrix_lineMask) >> 4);
 
 #ifndef DISPLAY_PositioningOnEachNewLine
-                    DotMatrix_bufferlength = setCommandPosition(currentLine, currentDisplayElement->pos_x, g_dotMatrix_displayCommandBuffer, 0, 10);
+                    DotMatrix_bufferlength = setCommandPosition(currentDisplayElement, currentLine, g_dotMatrix_displayCommandBuffer, 0, 10);
                     setBufferLength((Buffer_void*) dotMatrix_command_and_data_Buffer[0], DotMatrix_bufferlength);
                     resetBuffer((Buffer_void*)dotMatrix_dataBufferBuffer);
 
@@ -155,9 +155,9 @@ void DotMatrix_transferElement()
             {
                 DotMatrix_bufferlength = 0;
 #ifdef DISPLAY_PositioningOnEachNewLine
-                DotMatrix_bufferlength += setCommandPosition(currentLine, currentDisplayElement->pos_x, g_dotMatrix_displayCommandBuffer, 0, 10);
+                DotMatrix_bufferlength += setCommandPosition(currentDisplayElement, currentLine, g_dotMatrix_displayCommandBuffer, 0, 10);
 #endif /* DISPLAY_PositioningOnEachNewLine */
-                DotMatrix_bufferlength += setCommandData(currentDisplayElement->len_x, currentDisplayElement->pos_x, g_dotMatrix_displayCommandBuffer, DotMatrix_bufferlength, 10);
+                DotMatrix_bufferlength += setCommandData(currentDisplayElement, g_dotMatrix_displayCommandBuffer, DotMatrix_bufferlength, 10);
 
                 setBufferLength((Buffer_void*) dotMatrix_command_and_data_Buffer[0], DotMatrix_bufferlength);
                 setBuffer((Buffer_void*) dotMatrix_command_and_data_Buffer[1],

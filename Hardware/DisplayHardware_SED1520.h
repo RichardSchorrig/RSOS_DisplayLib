@@ -80,21 +80,20 @@ static inline uint8_t initializeDisplayHardware(uint8_t * buffer, uint8_t buffer
 }
 
 /**
- * Function uint8_t setCommandPosition(DisplayElement* element, uint8_t * buffer, uint8_t bufferlength)
+ * Function uint8_t setCommandPosition(DisplayElement* element, uint8_t line, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength)
  * fills the buffer with display specific information to set the cursor to the position (line, column)
+ * @param element: the DisplayElement to be transferred (used for obtaining position and size)
  * @param line: the line to set the cursor to
- * @param xpos: the column to set the cursor to
  * @param buffer: the buffer to be filled with the information
  * @param bufferoffset: the offset of the buffer, bytes are written to the index bufferoffset + n
  * @param bufferlength: the maximum length of the buffer; this function won't write to the buffer if length isn't sufficient
  * @return the number of bytes written to the buffer
  */
-static inline uint8_t setCommandPosition(DisplayElement* element, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength) __attribute__((always_inline));
-static inline uint8_t setCommandPosition(DisplayElement* element, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength)
+static inline uint8_t setCommandPosition(DisplayElement* element, uint8_t line, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength) __attribute__((always_inline));
+static inline uint8_t setCommandPosition(DisplayElement* element, uint8_t line, uint8_t * buffer, uint8_t bufferoffset, uint8_t bufferlength)
 {
     if (bufferlength-bufferoffset >= 4) {
         uint8_t xpos = element->pos_x;
-        uint8_t line = (element->status & dotMatrix_lineMask) >> 4;
         buffer[bufferoffset+0] = COMMAND_START | COMMAND_START_A0;
         if (xpos < 62) {
             buffer[bufferoffset+0] |= COMMAND_START_CS1;
@@ -115,8 +114,7 @@ static inline uint8_t setCommandPosition(DisplayElement* element, uint8_t * buff
 /**
  * Function uint8_t setCommandData(DisplayElement* element, uint8_t * buffer, uint8_t bufferlength)
  * fills the buffer with display specific information to transfer data
- * @param nOfBytes: the number of bytes to transfer
- * @param xpos: the first column to write to, needed for display side selection
+ * @param element: the DisplayElement to be transferred (used for obtaining position and size)
  * @param buffer: the buffer to be filled with the information
  * @param bufferoffset: the offset of the buffer, bytes are written to the index bufferoffset + n
  * @param bufferlength: the maximum length of the buffer; this function won't write to the buffer if length isn't sufficient
