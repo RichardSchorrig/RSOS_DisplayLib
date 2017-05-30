@@ -21,6 +21,12 @@ I2C_Data* dotMatrixSR;
 #endif /* SPI / I2C */
 
 /**
+ * memory
+ */
+DisplayElement dotMatrix_mem[DOTMATRIX_MEMSIZE];
+int8_t dotMatrix_size = 0;
+
+/**
  * buffers
  */
 uint8_t dotMatrix_displayBuffer[DOTMATRIX_DISPLAY_LINES][DOTMATRIX_DISPLAY_XRES];
