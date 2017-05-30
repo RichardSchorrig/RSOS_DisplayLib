@@ -76,7 +76,7 @@ Buffer_void* DotMatrix_getBuffer();
 
 /**
  * writes the commands needed to initialize the display's hardware
- * @return -1 if the interface is currently busy, 0 if the transfer is successfully initiated
+ * @return -1 if the interface is currently busy, 1 if the transfer is successfully initiated
  */
 int8_t DotMatrix_initializeDisplayHardware();
 

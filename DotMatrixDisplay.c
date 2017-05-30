@@ -74,7 +74,7 @@ int8_t DotMatrix_initializeDisplayHardware()
     }
     else
     {
-        return 0;
+        return 1;
     }
 }
 
