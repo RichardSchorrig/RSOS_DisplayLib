@@ -20,7 +20,7 @@
 /**
  * minimum size of the command buffer
  */
-#define DOTMATRIX_COMMANDBUFFER_SIZE 13
+#define DOTMATRIX_COMMANDBUFFER_SIZE 8
 
 /**
  * Command Bytes for DotMatrix Display Interface hardware

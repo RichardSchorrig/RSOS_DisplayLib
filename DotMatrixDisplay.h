@@ -16,6 +16,8 @@
 
 #include "DotMatrixElement.h"
 
+#include "Hardware/DisplayHardware.h"
+
 #ifndef DOTMATRIX_SPI
 #ifndef DOTMATRIX_I2C
 #error "No Serial Interface Type specified: either DOTMATRIX_SPI or DOTMATRIX_I2C"
@@ -41,7 +43,7 @@ extern DisplayElement dotMatrix_mem[DOTMATRIX_MEMSIZE];
  * by calling
  * DotMatrix_forceCommandOutput()
  */
-extern uint8_t g_dotMatrix_displayCommandBuffer[10];
+extern uint8_t g_dotMatrix_displayCommandBuffer[DOTMATRIX_COMMANDBUFFER_SIZE];
 
 /**
  * resets the display, initializes the dot matrix display function

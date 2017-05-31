@@ -10,8 +10,6 @@
 /* exclude everything if not used */
 #ifdef DOTMATRIX_MEMSIZE
 
-#include "Hardware/DisplayHardware.h"
-
 #ifdef DOTMATRIX_SPI
 #include <SerialInterface/SPIOperation.h>
 SPIOperation* dotMatrixSR;
@@ -30,7 +28,7 @@ int8_t dotMatrix_size = 0;
  * buffers
  */
 uint8_t dotMatrix_displayBuffer[DOTMATRIX_DISPLAY_LINES][DOTMATRIX_DISPLAY_XRES];
-uint8_t g_dotMatrix_displayCommandBuffer[10];
+uint8_t g_dotMatrix_displayCommandBuffer[DOTMATRIX_COMMANDBUFFER_SIZE];
 
 static BufferBuffer_uint8 * dotMatrix_dataBufferBuffer;
 static Buffer_uint8 * dotMatrix_command_and_data_Buffer[2];
@@ -61,7 +59,7 @@ void DotMatrix_initDisplay(I2C_Data* dotMatrixSOP)
 
 int8_t DotMatrix_initializeDisplayHardware()
 {
-    int8_t bytes = initializeDisplayHardware(g_dotMatrix_displayCommandBuffer, 10, 0);
+    int8_t bytes = initializeDisplayHardware(g_dotMatrix_displayCommandBuffer, 0, 13);
 
     setBufferLength((Buffer_void*) dotMatrix_command_and_data_Buffer[0], bytes);
     setBufferLength((Buffer_void*) dotMatrix_command_and_data_Buffer[1], 0);
@@ -161,9 +159,9 @@ void DotMatrix_transferElement()
             {
                 DotMatrix_bufferlength = 0;
 #ifdef DISPLAY_PositioningOnEachNewLine
-                DotMatrix_bufferlength += setCommandPosition(currentDisplayElement, currentLine, g_dotMatrix_displayCommandBuffer, 0, 10);
+                DotMatrix_bufferlength += setCommandPosition(currentDisplayElement, currentLine, g_dotMatrix_displayCommandBuffer, 0, DOTMATRIX_COMMANDBUFFER_SIZE);
 #endif /* DISPLAY_PositioningOnEachNewLine */
-                DotMatrix_bufferlength += setCommandData(currentDisplayElement, g_dotMatrix_displayCommandBuffer, DotMatrix_bufferlength, 10);
+                DotMatrix_bufferlength += setCommandData(currentDisplayElement, g_dotMatrix_displayCommandBuffer, DotMatrix_bufferlength, DOTMATRIX_COMMANDBUFFER_SIZE);
 
                 setBufferLength((Buffer_void*) dotMatrix_command_and_data_Buffer[0], DotMatrix_bufferlength);
                 setBuffer((Buffer_void*) dotMatrix_command_and_data_Buffer[1],
