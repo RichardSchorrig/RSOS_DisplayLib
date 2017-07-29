@@ -57,12 +57,13 @@ void DotMatrix_initDisplay(I2C_Data* dotMatrixSOP)
 	setTaskCyclic(dotMatrix_task_transferElement, 2);
 }
 
-int8_t DotMatrix_initializeDisplayHardware()
+RSOS_bool DotMatrix_initializeDisplayHardware()
 {
     int8_t bytes = initializeDisplayHardware(g_dotMatrix_displayCommandBuffer, 0, 13);
 
     setBufferLength((Buffer_void*) dotMatrix_command_and_data_Buffer[0], bytes);
     setBufferLength((Buffer_void*) dotMatrix_command_and_data_Buffer[1], 0);
+    resetBuffer((Buffer_void*) dotMatrix_dataBufferBuffer);
 
     int8_t retVal;
 
@@ -74,11 +75,11 @@ int8_t DotMatrix_initializeDisplayHardware()
 
     if (retVal == -1)
     {
-        return -1;
+        return RSOS_bool_false;
     }
     else
     {
-        return 1;
+        return RSOS_bool_true;
     }
 }
 
@@ -110,12 +111,16 @@ void DotMatrix_transferElement()
 
     int8_t noDelms = 0;
 
-    if (noSROperation != -1 || DotMatrix_forceOutput) {
-        if (currentDisplayElement == 0) {
+    if (noSROperation != -1 && DotMatrix_forceOutput == 0)
+    {
+        if (currentDisplayElement == 0)
+        {
             int8_t i = dotMatrix_size;
-            for (; i>0; i-=1) {
+            for (; i>0; i-=1)
+            {
 
-                if (dotMatrix_mem[i-1].status & dotMatrix_activeBit) {
+                if (dotMatrix_mem[i-1].status & dotMatrix_activeBit)
+                {
                     currentDisplayElement = &dotMatrix_mem[i-1];
                     DotMatrix_bufferlength = 0;
 
@@ -139,7 +144,8 @@ void DotMatrix_transferElement()
                     break;
                 }
 
-                else {
+                else
+                {
                     noDelms += 1;
                 }
             }
@@ -153,7 +159,8 @@ void DotMatrix_transferElement()
             }
         }
 
-        if (currentDisplayElement != 0) {
+        if (currentDisplayElement != 0)
+        {
 
             if (dotMatrixSR->bytesToWrite == 0)
             {
@@ -162,7 +169,6 @@ void DotMatrix_transferElement()
                 DotMatrix_bufferlength += setCommandPosition(currentDisplayElement, currentLine, g_dotMatrix_displayCommandBuffer, 0, DOTMATRIX_COMMANDBUFFER_SIZE);
 #endif /* DISPLAY_PositioningOnEachNewLine */
                 DotMatrix_bufferlength += setCommandData(currentDisplayElement, g_dotMatrix_displayCommandBuffer, DotMatrix_bufferlength, DOTMATRIX_COMMANDBUFFER_SIZE);
-
                 setBufferLength((Buffer_void*) dotMatrix_command_and_data_Buffer[0], DotMatrix_bufferlength);
                 setBuffer((Buffer_void*) dotMatrix_command_and_data_Buffer[1],
                           (void*) &dotMatrix_displayBuffer[currentLine][currentDisplayElement->pos_x],
@@ -200,6 +206,7 @@ void DotMatrix_transferElement()
 #elif defined DOTMATRIX_I2C
         noSROperation = I2C_activateData(dotMatrixSR, DotMatrix_bufferlength, 0);
 #endif /* SPI / I2C */
+        DotMatrix_forceOutput = 0;
     }
 }
 
@@ -231,14 +238,28 @@ uint8_t DotMatrix_isActive()
     return dotMatrixSR->bytesToWrite;
 }
 
-int8_t DotMatrix_forceCommandOutput(uint8_t nOfBytes)
+RSOS_bool DotMatrix_forceCommandOutput(uint8_t nOfBytes)
 {
     if (DotMatrix_isActive())
         return -1;
 
-    DotMatrix_bufferlength = nOfBytes;
-    DotMatrix_forceOutput = 1;
-    return 0;
+    setBufferLength((Buffer_void*) dotMatrix_command_and_data_Buffer[0], nOfBytes);
+    resetBuffer((Buffer_void*)dotMatrix_dataBufferBuffer);
+    //scheduleTask(dotMatrix_task_transferElement);
+    int8_t retVal;
+#ifdef DOTMATRX_SPI
+    retVal = SPI_activateSPIOperation(dotMatrixSR, nOfBytes);
+#elif defined DOTMATRIX_I2C
+    retVal = I2C_activateData(dotMatrixSR, nOfBytes, 0);
+#endif /* SPI / I2C */
+    if (retVal == -1)
+    {
+        return RSOS_bool_false;
+    }
+    else
+    {
+        return RSOS_bool_true;
+    }
 }
 
 inline int8_t DotMatrix_changeElement_inLine(DisplayElement* delm,
@@ -419,7 +440,7 @@ int16_t DotMatrix_cleanElement(DisplayElement* delm) {
     }
 
     if (linesTodo == 1 && columns == -1) {
-        upperMask &= lowerMask; // combine both masks
+        upperMask &= lowerMask; // combine both masks   todo: bug?
         return clearLine(upperMask, delm->status & dotMatrix_isInverted, line, delm->pos_x, delm->len_x);
     }
 

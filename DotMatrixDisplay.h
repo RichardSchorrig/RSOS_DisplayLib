@@ -9,6 +9,8 @@
 #define DOTMATRIXDISPLAY_H_
 
 #include <stdint.h>
+#include <RSOS_BasicInclude.h>
+
 #include <RSOSDefines.h>
 
 /* exclude everything if not used */
@@ -78,9 +80,9 @@ Buffer_void* DotMatrix_getBuffer();
 
 /**
  * writes the commands needed to initialize the display's hardware
- * @return -1 if the interface is currently busy, 1 if the transfer is successfully initiated
+ * @return RSOS_false if the interface is currently busy, RSOS_true if the transfer is successfully initiated
  */
-int8_t DotMatrix_initializeDisplayHardware();
+RSOS_bool DotMatrix_initializeDisplayHardware();
 
 /**
  * task function: checks all display elements for active bit
@@ -115,7 +117,7 @@ int8_t DotMatrix_CleanDisplay();
 
 /**
  * cleans the entire display element delm, i.e. sets all pixel to 0 (even when element is inverted)
- * @return 1 on success, -1 on failure
+ * @return the total number of columns on success, -1 on failure
  */
 int16_t DotMatrix_cleanElement(DisplayElement* delm);
 
@@ -134,9 +136,9 @@ uint8_t DotMatrix_isActive();
  * the bytes to be transferred. Before filling the buffer, call DotMatrix_isActive()
  * to check if the buffer is currently in use.
  * @param nOfBytes: the number of bytes to be transferred from the command buffer
- * @return 1 if successful
+ * @return RSOS_true if successful
  */
-int8_t DotMatrix_forceCommandOutput(uint8_t nOfBytes);
+RSOS_bool DotMatrix_forceCommandOutput(uint8_t nOfBytes);
 
 /**
  * changes display data according to data till the end of the element or datalen is reached
