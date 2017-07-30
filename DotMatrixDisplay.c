@@ -128,7 +128,7 @@ void DotMatrix_transferElement()
                     currentLine = ((currentDisplayElement->status & dotMatrix_lineMask) >> 4);
 
 #ifndef DISPLAY_PositioningOnEachNewLine
-                    DotMatrix_bufferlength = setCommandPosition(currentDisplayElement, currentLine, g_dotMatrix_displayCommandBuffer, 0, 10);
+                    DotMatrix_bufferlength = setCommandPosition(currentDisplayElement, currentLine, g_dotMatrix_displayCommandBuffer, 0, DOTMATRIX_COMMANDBUFFER_SIZE);
                     setBufferLength((Buffer_void*) dotMatrix_command_and_data_Buffer[0], DotMatrix_bufferlength);
                     resetBuffer((Buffer_void*)dotMatrix_dataBufferBuffer);
 
