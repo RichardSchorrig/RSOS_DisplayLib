@@ -39,6 +39,7 @@
 
 extern int8_t dotMatrix_size;
 extern DisplayElement dotMatrix_mem[DOTMATRIX_MEMSIZE];
+extern uint8_t dotMatrix_displayBuffer[DOTMATRIX_DISPLAY_LINES][DOTMATRIX_DISPLAY_XRES];
 
 /**
  * User can add commands to the buffer and force the output
@@ -64,6 +65,7 @@ extern uint8_t g_dotMatrix_displayCommandBuffer[DOTMATRIX_COMMANDBUFFER_SIZE];
  * either an SPIOperation or an I2COperation, depending on the operation.
  * a preprocessor define, either DOTMATRIX_SPI or DOTMATRIX_I2C, must exist
  */
+__EXTERN_C
 #ifdef DOTMATRIX_SPI
 void DotMatrix_initDisplay(SPIOperation* dotMatrixSOP);
 #elif defined DOTMATRIX_I2C
@@ -76,12 +78,14 @@ void DotMatrix_initDisplay(I2C_Data* dotMatrixSOP);
  * The Serial Interface must be initialized with the buffer returned by this function
  * @return the buffer to use for the serial interface
  */
+__EXTERN_C
 Buffer_void* DotMatrix_getBuffer();
 
 /**
  * writes the commands needed to initialize the display's hardware
  * @return RSOS_false if the interface is currently busy, RSOS_true if the transfer is successfully initiated
  */
+__EXTERN_C
 RSOS_bool DotMatrix_initializeDisplayHardware();
 
 /**
@@ -90,6 +94,7 @@ RSOS_bool DotMatrix_initializeDisplayHardware();
  * it also checks the next element if it is active. If the next active element refers to the same
  * display line and is not too far apart (10 positions) it will be added to the transfer
  */
+__EXTERN_C
 void DotMatrix_transferElement();
 
 /**
@@ -108,17 +113,20 @@ void DotMatrix_transferElement();
  *                    0: not inverted, 1: invert element
  * @return: the initialized DisplayElement structure
  */
+__EXTERN_C
 DisplayElement* DotMatrix_newDisplayElement(uint8_t xpos, uint8_t ypos, uint8_t xsize, uint8_t ysize, uint8_t showInverted);
 
 /**
  * cleans the entire display
  */
+__EXTERN_C
 int8_t DotMatrix_CleanDisplay();
 
 /**
  * cleans the entire display element delm, i.e. sets all pixel to 0 (even when element is inverted)
  * @return the total number of columns on success, -1 on failure
  */
+__EXTERN_C
 int16_t DotMatrix_cleanElement(DisplayElement* delm);
 
 //int8_t DotMatrix_scroll(uint8_t line);
@@ -128,6 +136,7 @@ int16_t DotMatrix_cleanElement(DisplayElement* delm);
  * @return 0: no element is transferred
  *         any positive number: the number of bytes left to be transferred
  */
+__EXTERN_C
 uint8_t DotMatrix_isActive();
 
 /**
@@ -138,6 +147,7 @@ uint8_t DotMatrix_isActive();
  * @param nOfBytes: the number of bytes to be transferred from the command buffer
  * @return RSOS_true if successful
  */
+__EXTERN_C
 RSOS_bool DotMatrix_forceCommandOutput(uint8_t nOfBytes);
 
 /**
@@ -154,6 +164,7 @@ RSOS_bool DotMatrix_forceCommandOutput(uint8_t nOfBytes);
  * @return: -1 if changes were not possible (dimensions out of bounds) or element is currently transferred, 0 if no changes where made,
  *          or the number of changed columns
  */
+__EXTERN_C
 int8_t DotMatrix_changeElementN(DisplayElement* delm, int16_t xpos, int16_t ypos, const uint8_t * data, uint8_t datalen);
 
 /**
@@ -169,6 +180,7 @@ int8_t DotMatrix_changeElementN(DisplayElement* delm, int16_t xpos, int16_t ypos
  * @return: -1 if changes were not possible (dimensions out of bounds) or element is currently transferred, 0 if no changes where made,
  *          or 1 if change was successful
  */
+__EXTERN_C
 int8_t DotMatrix_changeElement(DisplayElement* delm, int16_t xpos, int16_t ypos, const uint8_t data);
 
 /**
@@ -176,6 +188,7 @@ int8_t DotMatrix_changeElement(DisplayElement* delm, int16_t xpos, int16_t ypos,
  * Display Element is transferred to the display.
  * @param delm: the display element to be activated
  */
+__EXTERN_C
 void DotMatrix_activateElement(DisplayElement* delm);
 
 

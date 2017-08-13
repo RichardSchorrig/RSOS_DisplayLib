@@ -37,6 +37,7 @@ static Task * dotMatrix_task_transferElement = 0;
 
 //static DisplayElement* displayElement_entireDisplay = 0;
 
+__EXTERN_C
 Buffer_void* DotMatrix_getBuffer()
 {
     dotMatrix_command_and_data_Buffer[0] = (Buffer_uint8*) initBuffer((void*)g_dotMatrix_displayCommandBuffer, 10, BUFFER_TYPE_REGULAR);
@@ -45,6 +46,7 @@ Buffer_void* DotMatrix_getBuffer()
     return (Buffer_void*)dotMatrix_dataBufferBuffer;
 }
 
+__EXTERN_C
 #ifdef DOTMATRIX_SPI
 void DotMatrix_initDisplay(SPIOperation* dotMatrixSOP)
 #elif defined DOTMATRIX_I2C
@@ -57,6 +59,7 @@ void DotMatrix_initDisplay(I2C_Data* dotMatrixSOP)
 	setTaskCyclic(dotMatrix_task_transferElement, 2);
 }
 
+__EXTERN_C
 RSOS_bool DotMatrix_initializeDisplayHardware()
 {
     int8_t bytes = initializeDisplayHardware(g_dotMatrix_displayCommandBuffer, 0, 13);
@@ -101,6 +104,7 @@ inline DisplayElement* getIfActive(uint8_t lineToMatch, uint8_t index) {
 static uint8_t DotMatrix_forceOutput = 0;
 static uint8_t DotMatrix_bufferlength = 0;
 
+__EXTERN_C
 void DotMatrix_transferElement()
 {
     static DisplayElement* currentDisplayElement = 0;
@@ -210,6 +214,7 @@ void DotMatrix_transferElement()
     }
 }
 
+__EXTERN_C
 DisplayElement* DotMatrix_newDisplayElement(uint8_t xpos, uint8_t ypos, uint8_t xsize, uint8_t ysize, uint8_t showInverted)
 {
 	dotMatrix_mem[dotMatrix_size].pos_x = xpos;
@@ -233,11 +238,13 @@ DisplayElement* DotMatrix_newDisplayElement(uint8_t xpos, uint8_t ypos, uint8_t 
 	return &dotMatrix_mem[dotMatrix_size - 1];
 }
 
+__EXTERN_C
 uint8_t DotMatrix_isActive()
 {
     return dotMatrixSR->bytesToWrite;
 }
 
+__EXTERN_C
 RSOS_bool DotMatrix_forceCommandOutput(uint8_t nOfBytes)
 {
     if (DotMatrix_isActive())
@@ -262,10 +269,12 @@ RSOS_bool DotMatrix_forceCommandOutput(uint8_t nOfBytes)
     }
 }
 
+__EXTERN_C
 inline int8_t DotMatrix_changeElement_inLine(DisplayElement* delm,
                                              int16_t xpos, int16_t ypos,
                                              const uint8_t * data, uint8_t datalen,
                                              uint8_t line, uint8_t offset);
+__EXTERN_C
 int8_t DotMatrix_changeElement_inLine(DisplayElement* delm,
                                              int16_t xpos, int16_t ypos,
                                              const uint8_t * data, uint8_t datalen,
@@ -311,11 +320,13 @@ int8_t DotMatrix_changeElement_inLine(DisplayElement* delm,
     return pos;
 }
 
+__EXTERN_C
 inline int8_t DotMatrix_changeElement_betweenLines(DisplayElement* delm,
                                                    int16_t xpos, int16_t ypos,
                                                    const uint8_t * data, uint8_t datalen,
                                                    int8_t line_upper, uint8_t offset_upper,
                                                    uint8_t line_lower, uint8_t offset_lower);
+__EXTERN_C
 int8_t DotMatrix_changeElement_betweenLines(DisplayElement* delm,
                                                    int16_t xpos, int16_t ypos,
 												   const uint8_t * data, uint8_t datalen,
@@ -367,6 +378,7 @@ int8_t DotMatrix_changeElement_betweenLines(DisplayElement* delm,
 	return pos;
 }
 
+__EXTERN_C
 int8_t DotMatrix_CleanDisplay() {
     uint8_t i = DOTMATRIX_DISPLAY_LINES;
     for (; i>0; i-=1) {
@@ -393,8 +405,10 @@ int8_t DotMatrix_CleanDisplay() {
 */
 }
 
-inline int8_t clearLine(uint8_t mask, uint8_t invert, uint8_t line, uint8_t pos_x, uint8_t len);
-int8_t clearLine(uint8_t mask, uint8_t invert, uint8_t line, uint8_t pos_x, uint8_t len) {
+__EXTERN_C
+static inline int8_t clearLine(uint8_t mask, uint8_t invert, uint8_t line, uint8_t pos_x, uint8_t len);
+__EXTERN_C
+inline int8_t clearLine(uint8_t mask, uint8_t invert, uint8_t line, uint8_t pos_x, uint8_t len) {
     int8_t pos = -1;
     for (; len>0; len-=1) {
         pos += 1;
@@ -408,6 +422,7 @@ int8_t clearLine(uint8_t mask, uint8_t invert, uint8_t line, uint8_t pos_x, uint
     return pos;
 }
 
+__EXTERN_C
 int16_t DotMatrix_cleanElement(DisplayElement* delm) {
     int16_t columns = -1;
     uint8_t line = (delm->status & dotMatrix_lineMask) >> 4;
@@ -422,7 +437,7 @@ int16_t DotMatrix_cleanElement(DisplayElement* delm) {
             upperMask <<= 1;
         }
         if (linesTodo > 1) {
-            columns += clearLine(upperMask, delm->status & dotMatrix_isInverted, line, delm->pos_x, delm->len_x);
+            columns += clearLine(upperMask, (delm->status & dotMatrix_isInverted ? 1 : 0), line, delm->pos_x, delm->len_x);
             line += 1;
             linesTodo -= 1;
         }
@@ -434,20 +449,20 @@ int16_t DotMatrix_cleanElement(DisplayElement* delm) {
             lowerMask >>= 1;
         }
         if (linesTodo > 1) {
-            columns += clearLine(lowerMask, delm->status & dotMatrix_isInverted, lastLine, delm->pos_x, delm->len_x);
+            columns += clearLine(lowerMask, (delm->status & dotMatrix_isInverted ? 1 : 0), lastLine, delm->pos_x, delm->len_x);
             linesTodo -= 1;
         }
     }
 
     if (linesTodo == 1 && columns == -1) {
         upperMask &= lowerMask; // combine both masks   todo: bug?
-        return clearLine(upperMask, delm->status & dotMatrix_isInverted, line, delm->pos_x, delm->len_x);
+        return clearLine(upperMask, (delm->status & dotMatrix_isInverted ? 1 : 0), line, delm->pos_x, delm->len_x);
     }
 
     for (; linesTodo > 0; linesTodo-=1) {
         uint8_t xpos = delm->len_x;
         for (; xpos > 0; xpos-=1) {
-            columns += clearLine(0xFF, delm->status & dotMatrix_isInverted, line, delm->pos_x, delm->len_x);
+            columns += clearLine(0xFF, (delm->status & dotMatrix_isInverted ? 1 : 0), line, delm->pos_x, delm->len_x);
             line += 1;
         }
     }
@@ -455,6 +470,7 @@ int16_t DotMatrix_cleanElement(DisplayElement* delm) {
     return columns;
 }
 
+__EXTERN_C
 int8_t DotMatrix_changeElementN(DisplayElement* delm, int16_t xpos, int16_t ypos, const uint8_t * data, uint8_t datalen)
 {
 
@@ -491,11 +507,13 @@ int8_t DotMatrix_changeElementN(DisplayElement* delm, int16_t xpos, int16_t ypos
 	}
 }
 
+__EXTERN_C
 int8_t DotMatrix_changeElement(DisplayElement* delm, int16_t xpos, int16_t ypos, const uint8_t data)
 {
     return DotMatrix_changeElementN(delm, xpos, ypos, &data, 1);
 }
 
+__EXTERN_C
 void DotMatrix_activateElement(DisplayElement* delm) {
     delm->status |= dotMatrix_activeBit;
     scheduleTask(dotMatrix_task_transferElement);
