@@ -318,7 +318,7 @@ static inline uint8_t initializeDisplayHardware(uint8_t * buffer, uint8_t buffer
         buffer[bufferoffset+2] = DISPLAY_COMMAND_DRIVER_Unlock;
         buffer[bufferoffset+3] = DISPLAY_COMMAND_CO;
         buffer[bufferoffset+4] = DISPLAY_COMMAND_FREQUENCY_DIVIDER;
-        buffer[bufferoffset+5] = 0xA0;
+        buffer[bufferoffset+5] = 0xA0;  //todo: increase multiplier
         buffer[bufferoffset+6] = DISPLAY_COMMAND_CO;
         buffer[bufferoffset+7] = DISPLAY_COMMAND_SegmentRemapSEG127;
         buffer[bufferoffset+8] = DISPLAY_COMMAND_CO;
@@ -352,7 +352,7 @@ static inline uint8_t setCommandPosition(DisplayElement* element, uint8_t line, 
         buffer[bufferoffset+3] = DISPLAY_COMMAND_CO;
         buffer[bufferoffset+4] = DISPLAY_COMMAND_SetColumn;
         buffer[bufferoffset+5] = element->pos_x;
-        buffer[bufferoffset+6] = element->pos_x + element->len_x;
+        buffer[bufferoffset+6] = element->pos_x + element->len_x - 1;
         buffer[bufferoffset+7] = DISPLAY_COMMAND_CO;
         buffer[bufferoffset+8] = DISPLAY_COMMAND_SetPage;
         buffer[bufferoffset+9] = (element->status & dotMatrix_lineMask) >> 4;
