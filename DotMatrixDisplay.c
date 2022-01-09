@@ -486,7 +486,7 @@ int16_t DotMatrix_cleanElement(DisplayElement* delm) {
 
     return columns;
 }
-#include <stdio.h>
+
 __EXTERN_C
 int8_t DotMatrix_changeElementN(DisplayElement* delm, int16_t xpos, int16_t ypos, const uint8_t * data, uint8_t datalen)
 {
@@ -509,13 +509,10 @@ int8_t DotMatrix_changeElementN(DisplayElement* delm, int16_t xpos, int16_t ypos
 	    yEnd = delm->pos_y+delm->height_y;
 	}
 
-	printf("yEnd is %d\n", yEnd);
-
 	int8_t line_upper = (delm->pos_y + ypos) >> 3;
 	uint8_t offset_upper = (delm->pos_y + ypos) & 0x07;
 	int8_t line_lower = (yEnd-1) >> 3;
 	uint8_t offset_lower = (yEnd) & 0x07;
-	printf("line_upper: %d, offset_upper: %d\nline_lower: %d, offset_lower:%d\n", line_upper, offset_upper, line_lower, offset_lower);
 
 	if (line_upper != line_lower)
 	{
